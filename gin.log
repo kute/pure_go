@@ -1,0 +1,12 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /ping                     --> main.quickStart.func1 (3 handlers)
+[GIN-debug] GET    /user/:name/*action       --> main.quickStart.func2 (3 handlers)
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2021/11/06 - 12:42:20 | 404 |         645ns |             ::1 | GET      "/user/a"
+[GIN] 2021/11/06 - 12:42:24 | 200 |      29.825µs |             ::1 | GET      "/user/a/"
+[GIN] 2021/11/06 - 12:45:25 | 404 |         733ns |             ::1 | GET      "/user/a"
