@@ -7,6 +7,7 @@
 4、go中文网：https://studygolang.com/
 5、gvm: https://github.com/moovweb/gvm
 6、go get
+7、https://pkg.go.dev/
 
 ```
 -d 只下载不安装

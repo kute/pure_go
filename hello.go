@@ -434,6 +434,10 @@ func LoopTest() {
 	switch i {
 	case 2:
 		fmt.Println("2")
+		// fallthrough: 强制执行当前case后面的第一个case，但是不能用于type switch
+		fallthrough
+	case 3:
+		fmt.Println("3")
 	default:
 		fmt.Println("default")
 	}
