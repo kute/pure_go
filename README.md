@@ -8,6 +8,12 @@
 5、gvm: https://github.com/moovweb/gvm
 6、go get
 7、https://pkg.go.dev/
+8、https://go.dev/doc/effective_go
+https://www.kancloud.cn/kancloud/effective/72199
+9、https://github.com/golang/go/wiki/CodeReviewComments
+10、https://gfw.go101.org/article/101.html
+https://go101.org/article/101.html
+11、https://www.zhihu.com/question/20801814/answer/2230354123
 
 ```
 -d 只下载不安装

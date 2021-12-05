@@ -6,6 +6,7 @@ import (
 	"container/list"
 	"errors"
 	"fmt"
+	_ "image/jpeg" // 匿名引用，如果包有init函数会执行，没有也不会报错
 	"io"
 	"math"
 	"os"
@@ -105,10 +106,10 @@ func timeTest() {
 	fmt.Println(time.Unix(secondtimestamp, 0))
 	fmt.Println(time.UnixDate)
 
-	ticker := time.Tick(time.Second) //定义一个1秒间隔的定时器
-	for i := range ticker {
-		fmt.Println(i.Format("2006-01-03 15:04:05")) //每秒都会执行的任务
-	}
+	//ticker := time.Tick(time.Second) //定义一个1秒间隔的定时器
+	//for i := range ticker {
+	//	fmt.Println(i.Format("2006-01-03 15:04:05")) //每秒都会执行的任务
+	//}
 
 }
 
@@ -279,6 +280,7 @@ func testFmt() (string, string, newIntType) {
 	fmt.Println(sum)
 
 	for i, v := range strAry {
+		// index, ele
 		fmt.Println(i, v)
 	}
 
@@ -295,6 +297,7 @@ func testFmt() (string, string, newIntType) {
 	y4 := [...]int{2, 4} // ... 自行推断大小
 	var y5 = [...]int{2, 4}
 	fmt.Println(len(y2))
+	fmt.Println(len([]int{2, 4}))
 	y6 := [...][2]int{{1, 2}, {3, 4}}
 	y6[0][1], y6[1][0] = y6[1][0], y6[0][1]
 	fmt.Println(y6)
@@ -315,17 +318,34 @@ func testFmt() (string, string, newIntType) {
 	//fmt.Println(y6, y8, y9, y10)
 
 	// 切片，不会发生内存分配
+	fmt.Println("切片，不会发生内存分配")
 	fmt.Println(y1[2:3])
 
 	// 动态创建切片，一定发生了内存分配
+	// size 指的是为这个类型分配多少个元素，cap 为预分配的元素数量，这个值设定后不影响 size，只是能提前分配空间，降低多次分配空间造成的性能问题，只要 size的长度大于当前容量，那么会进行扩容，翻倍扩容
 	var l1 = make([]int, 2, 10)
+	fmt.Println(l1)
 	l1 = append(l1, 2, 2)              // 添加元素
-	l1 = append([]int{4}, l1...)       // 头部添加元素
+	l1 = append([]int{4}, l1...)       // 头部添加元素，使用了省略号(…)来自动展开切片
 	l1 = append([]int{4, 5, 6}, l1...) // 头部添加切片
 	var index = 4
 	var ele = 7
 	l1 = append(l1[:index], append([]int{ele}, l1[index:]...)...) // 第 5 个位置 插入 7
 	fmt.Println(l1)
+
+	ss := []int{1, 2, 3}
+	fmt.Printf("len=%d, cap=%d\n", len(ss), cap(ss))
+	//fmt.Println(ss[0:4]) // panic,切片越界
+	dd := make([]int, 3, 5)
+	fmt.Println(dd)
+	//fmt.Println(dd[0:5]) // 不会越界，容量<=5就不会越界
+	dd = append(dd, 1)
+	fmt.Printf("dd=%v, len=%d, cap=%d\n", dd, len(dd), cap(dd))
+	dd = append(dd, 2)
+	fmt.Printf("dd=%v, len=%d, cap=%d\n", dd, len(dd), cap(dd))
+	// 当添加3之后，长度 大于 5 了，所以会进行扩容，直接翻倍
+	dd = append(dd, 3)
+	fmt.Printf("dd=%v, len=%d, cap=%d\n", dd, len(dd), cap(dd))
 
 	// 删除 开头元素
 	l1 = l1[1:] // 移动指针删除
@@ -361,6 +381,7 @@ func MapTest() {
 	fmt.Println(m1, m2)
 
 	var m map[int]bool
+	// 元素是否在map中
 	a, ok := m[1]
 	fmt.Println(a, ok)
 
@@ -457,11 +478,6 @@ func LoopTest() {
 		fmt.Println("xxx", x)
 	}(100)
 
-	var f = func(x int) bool {
-		return true
-	}
-	f(1)
-
 	// 函数回调
 	CallBackFunc([]int{1, 2, 3}, func(v int) {
 		fmt.Println(v)
@@ -479,6 +495,16 @@ func LoopTest() {
 			fmt.Println("angel fly")
 		},
 	}
+
+	fm1 := map[string]func(x int) bool{
+		"a": func(x int) bool {
+			return x > 1
+		},
+		"b": func(x int) bool {
+			return x > 2
+		},
+	}
+	fm1["b"](3)
 
 	skill["up"] = func() {
 		fmt.Println("any up")
@@ -533,6 +559,7 @@ func CallBackFunc(list []int, f func(x int)) {
 func DeferTest() {
 	fmt.Println("defer begin")
 
+	// 代码的延迟顺序与最终的执行顺序是反向的
 	defer fmt.Println("1")
 	defer fmt.Println("2")
 	defer fmt.Println("3")
@@ -557,6 +584,11 @@ type PlayerManager struct {
 	z *int
 }
 
+func (p PlayerManager) tttt() {
+
+}
+
+// 基于这个，可以构造不同的实例化函数
 func newPlayerManager(x int, y string, z *int) *PlayerManager {
 	return &PlayerManager{
 		x: x,
@@ -613,6 +645,7 @@ func StructTest() {
 	fmt.Printf("%T\n%T\n", pn, pa)
 
 	// 定义和初始化匿名结构体
+	// 场景：https://blog.csdn.net/weixin_42117918/article/details/90448756
 	spu := &struct {
 		name string
 		age  int
@@ -623,7 +656,7 @@ func StructTest() {
 	fmt.Println(reflect.TypeOf(spu), spu.age)
 	fmt.Printf("%T\n", spu)
 
-	// 内嵌结构体
+	// 内嵌结构体 和 匿名结构体
 	pps := People{"sd", uint8(18), nil, 19, 22, PlayerManager{
 		x: 0,
 		y: "ff",
@@ -638,6 +671,8 @@ func StructTest() {
 	fmt.Printf("%T\n", pps)
 	fmt.Println(pps.PlayerManager)
 	fmt.Println(pps.x, pps.PlayerManager.x)
+	// 内嵌结构体的方法可以直接调用
+	pps.tttt()
 
 	IoTest()
 
@@ -664,7 +699,7 @@ type People struct {
 	// 内嵌的结构体可以直接访问其成员变量,一个结构体只能嵌入一个同类型的成员
 	PlayerManager // 内嵌结构体，类比于 继承，拥有了 PlayerManager 的字段，同名字段还是需要区分的
 
-	// 匿名结构体
+	// 匿名结构体就是在嵌入时，不指定名称，这样子会将匿名结果体的所有方法引入到该类型中；这样在使用时有很多便利
 	Engine struct {
 		Power int    // 功率
 		Type  string // 类型

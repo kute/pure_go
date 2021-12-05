@@ -47,7 +47,7 @@ func main() {
 
 	//testChannel()
 
-	testChannel_single()
+	//testChannel_single()
 
 }
 
@@ -85,6 +85,7 @@ func testChannel_single() {
 		defer wg.Done()
 		var ticket = time.Tick(time.Second)
 		for range ticket {
+			// 原子性递增
 			atomic.AddInt32(&count, 1)
 			fmt.Println("produce value:", count)
 			// 发送到通过内，阻塞，必须等待上一个发送的数据被接收才能发送下一个

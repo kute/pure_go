@@ -24,7 +24,7 @@ type Meter struct {
 	data interface{}
 }
 
-// 实现接口 Kuter
+// 实现接口 Kuter，函数签名一致
 func (s *Meter) Done(x interface{}) (y int, err error) {
 	fmt.Println(reflect.TypeOf(s))
 	return 0, nil
@@ -53,7 +53,7 @@ func (s *Param) Done(x interface{}) (y int, err error) {
 
 // 接口作为参数，并不关心实现
 func usingKuter(kuter Kuter, x interface{}) {
-	kuter.Done(x)
+	_, _ = kuter.Done(x)
 }
 
 func usingWhyer(whyer Whyer, x interface{}) {
@@ -74,7 +74,7 @@ func usingWhyer(whyer Whyer, x interface{}) {
 	}
 }
 
-//实现排序接口 sort.Interface
+//实现排序接口 sort.Interface，需要实现接口里的所有方法
 type SortObject struct {
 	seq      []int
 	reversed bool
@@ -84,7 +84,7 @@ func (o SortObject) Len() int {
 	return len(o.seq)
 }
 
-// 默认 i < j
+// 默认 i < j，当 Less 为true时调用Swap
 func (o SortObject) Less(i, j int) bool {
 	var seq = o.seq
 	if o.reversed {
@@ -136,6 +136,7 @@ func main() {
 	// 内建的排序方法
 	sort.Ints(o.seq)
 	fmt.Println(o.seq)
+	// 自定义less函数
 	sort.Slice(o.seq, func(i, j int) bool {
 		return o.seq[i] > o.seq[j]
 	})

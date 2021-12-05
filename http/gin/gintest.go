@@ -49,6 +49,8 @@ func routerSettings(router *gin.Engine) {
 		}
 		context.AbortWithStatus(http.StatusInternalServerError)
 	}))
+	// 设置 gin 运行模式，默认 DebugMode，生成环境设置为 ReleaseMode
+	gin.SetMode(gin.DebugMode)
 }
 
 func customeLogFormat(router *gin.Engine) {
