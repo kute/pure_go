@@ -1,0 +1,8 @@
+1、github.com/gomodule/redigo
+
+2、https://github.com/go-redis/redis(推荐)
+   https://redis.uptrace.dev/
+
+   go-redis 与 redigo 的比较：https://redis.uptrace.dev/guide/go-redis-vs-redigo.html
+
+

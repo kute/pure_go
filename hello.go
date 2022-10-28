@@ -11,6 +11,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -21,6 +22,12 @@ import (
 // 初始化函数
 func init() {
 	fmt.Println("ini before main")
+	// NumCPU: 机器的 cpu 核心
+	// GOMAXPROCS： 逻辑调度器，go1.5之后默认为 NumCPU，对于 io 密集的应用，应调大 GOMAXPROCS，如 NumCPU * 2
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	fmt.Println("runtime.NumCPU", runtime.NumCPU())
+	// 参数为零时用于获取给GOMAXPROCS设置的值
+	fmt.Println("runtime.GOMAXPROCS", runtime.GOMAXPROCS(0))
 }
 
 func IoTest() {
@@ -101,6 +108,7 @@ func timeTest() {
 	secondtimestamp := now.Unix() // 时间戳,秒
 	timestamp := now.UnixNano()   // 纳秒时间戳
 	fmt.Printf("%d-%02d-%02d %02d:%02d:%02d\n", year, month, day, hour, minute, second)
+	fmt.Println(now.Format("2006-01-03 15:04:05")) // 输出 yyyy-MM-dd mm:HH:SS
 	fmt.Println(secondtimestamp, timestamp)
 	fmt.Println(time.Millisecond)
 	fmt.Println(time.Unix(secondtimestamp, 0))
@@ -125,11 +133,17 @@ var (
 // byte 和 uint8 等价
 var a rune
 
-// 类型定义
+// 自定义类型，newIntType 属于新的类型，但是具有 int 的特性, var a newIntType， reflect.TypeOf(a) == newIntType
 type newIntType int
 
-// 类型别名
+// 类型别名，bytesAlia 不是新的类型，他的类型还是 float64，只不过是个别名， var a bytesAlia, reflect.TypeOf(a) == float64
 type bytesAlia = float64
+
+func testType() {
+	var a newIntType
+	var b bytesAlia
+	fmt.Println("自定义类型：", reflect.TypeOf(a), "，别名：", reflect.TypeOf(b))
+}
 
 // 闭包
 func getSequence() func() int {
@@ -150,6 +164,7 @@ func Params(a, b string, id int, params ...interface{}) {
 	}
 	fmt.Println(reflect.TypeOf(a))
 	fmt.Println(reflect.TypeOf(b))
+	testType()
 }
 
 func Params2(params ...interface{}) {
@@ -172,7 +187,7 @@ func testFmt() (string, string, newIntType) {
 	f, g := 1, 2
 
 	nf := float32(d) * float32(g)
-	fmt.Println(nf)
+	fmt.Println(nf) // 6
 
 	const constant = "sf"
 	fmt.Println(a, b, c, d, f, g, constant)
@@ -180,6 +195,7 @@ func testFmt() (string, string, newIntType) {
 	strAry := []string{"a", "b"}
 	fmt.Println(strAry)
 
+	// 复数
 	var complexVar complex128 = complex(1., .23)
 	fmt.Println(complexVar)
 	fmt.Println(real(complexVar))
@@ -280,13 +296,14 @@ func testFmt() (string, string, newIntType) {
 	fmt.Println(sum)
 
 	for i, v := range strAry {
-		// index, ele
+		// index, element
 		fmt.Println(i, v)
 	}
 
 	// 初始化大小，默认为0
 	numbers := [6]int{1, 2, 3, 5}
 	for i, x := range numbers {
+		// 默认 4，5对应的值为 0
 		fmt.Printf("第 %d 位 x 的值 = %d\n", i, x)
 	}
 
@@ -299,6 +316,7 @@ func testFmt() (string, string, newIntType) {
 	fmt.Println(len(y2))
 	fmt.Println(len([]int{2, 4}))
 	y6 := [...][2]int{{1, 2}, {3, 4}}
+	//y66 := [...][...]int{{1, 2}, {3, 4}}
 	y6[0][1], y6[1][0] = y6[1][0], y6[0][1]
 	fmt.Println(y6)
 	fmt.Println(y1, y2, y3, y4, y5, y6)
@@ -306,20 +324,26 @@ func testFmt() (string, string, newIntType) {
 		fmt.Println(t)
 	}
 
-	//var y6 [2][3]int // 多维数组
-	var y8 [][]int // 多维数组
+	var y67 [2][3]int // 多维数组
+	var y8 [][]int    // 多维数组
 	//var y10 [...][...]int
 
 	y8 = append(y8, y2)
 
 	//y10 = append(y10, y2)
 
-	//y9 := [][]int{{1, 2}}
-	//fmt.Println(y6, y8, y9, y10)
+	y9 := [][]int{{1, 2}}
+	fmt.Println(y67, y8, y9)
 
 	// 切片，不会发生内存分配
 	fmt.Println("切片，不会发生内存分配")
 	fmt.Println(y1[2:3])
+
+	var aa1 []int = []int{0, 1, 2, 3, 4}
+	fmt.Println("a1数组:", aa1)
+	// [start: end] , end 不包含
+	fmt.Println("a1切片 a[0:1]", aa1[0:1])
+	fmt.Println("a1切片 a[0:len(a)]", aa1[0:len(aa1)])
 
 	// 动态创建切片，一定发生了内存分配
 	// size 指的是为这个类型分配多少个元素，cap 为预分配的元素数量，这个值设定后不影响 size，只是能提前分配空间，降低多次分配空间造成的性能问题，只要 size的长度大于当前容量，那么会进行扩容，翻倍扩容
@@ -347,6 +371,7 @@ func testFmt() (string, string, newIntType) {
 	dd = append(dd, 3)
 	fmt.Printf("dd=%v, len=%d, cap=%d\n", dd, len(dd), cap(dd))
 
+	fmt.Println(l1)
 	// 删除 开头元素
 	l1 = l1[1:] // 移动指针删除
 	fmt.Println(l1)
@@ -380,10 +405,12 @@ func MapTest() {
 	delete(m1, "a")
 	fmt.Println(m1, m2)
 
-	var m map[int]bool
+	var m map[int]string = map[int]string{2: "xx"}
 	// 元素是否在map中
 	a, ok := m[1]
-	fmt.Println(a, ok)
+	fmt.Println(a, ok) //    false
+	a, ok = m[2]
+	fmt.Println(a, ok) // xx true
 
 	// 线程安全map
 	var m3 sync.Map
@@ -393,6 +420,7 @@ func MapTest() {
 	// 遍历匿名函数
 	m3.Range(func(k, v interface{}) bool {
 		fmt.Println("k=", k, ", v=", v)
+		// return false 将不会继续遍历
 		return true
 	})
 
@@ -416,6 +444,7 @@ func MapTest() {
 
 func ListTest() {
 
+	// 双链表
 	ll := list.New()
 	ll.PushFront(99)
 	fmt.Println(ll)
@@ -436,7 +465,7 @@ func ListTest() {
 	for i := l.Back(); i != nil; i = i.Prev() {
 		fmt.Println(i.Value)
 	}
-	fmt.Println(unsafe.Sizeof(l)) // 内存大小
+	fmt.Println("unsafe.Sizeof(l)", unsafe.Sizeof(l)) // 内存大小, bytes
 
 	LoopTest()
 
@@ -510,6 +539,7 @@ func LoopTest() {
 		fmt.Println("any up")
 	}
 
+	// 同时进行赋值，判断
 	if f, ok := skill["fire"]; ok {
 		f()
 	} else {
@@ -517,10 +547,10 @@ func LoopTest() {
 	}
 
 	getSequence := getSequence()
-	fmt.Println(&getSequence)
-	fmt.Println(getSequence())
-	fmt.Println(getSequence())
-	fmt.Println(getSequence())
+	fmt.Println(&getSequence) // 内存地址，& 取址符，一般结果是十六进制
+	fmt.Println("getSequence", getSequence())
+	fmt.Println("getSequence", getSequence())
+	fmt.Println("getSequence", getSequence())
 
 	player1 := player("kute")
 	fmt.Println(&player1)
@@ -534,6 +564,7 @@ func LoopTest() {
 
 }
 
+// 闭包返回
 func player(name string) func() (string, int) {
 	blood := 100
 	return func() (string, int) {
@@ -559,7 +590,7 @@ func CallBackFunc(list []int, f func(x int)) {
 func DeferTest() {
 	fmt.Println("defer begin")
 
-	// 代码的延迟顺序与最终的执行顺序是反向的
+	// 代码的延迟顺序与最终的执行顺序是反向的，即 3，2，1
 	defer fmt.Println("1")
 	defer fmt.Println("2")
 	defer fmt.Println("3")
@@ -581,11 +612,17 @@ func DeferTest() {
 type PlayerManager struct {
 	x int
 	y string
-	z *int
+	z *int // 指针类型，若想获取指针对应的值，在指针前再加 * 号即可，即 *z
 }
 
+// 普通类型的方法，这里的 p 是拷贝对象，在方法内部进行赋值不影响原始的数据，因为这里是拷贝传递
 func (p PlayerManager) tttt() {
+	fmt.Println("ttttt")
+}
 
+// 指针类型的方法，这里的 p 就是原始的指针对象，在方法内比如赋值等将会改变原始的数据
+func (p *PlayerManager) tttt2() {
+	fmt.Println("tttt2")
 }
 
 // 基于这个，可以构造不同的实例化函数
@@ -597,27 +634,47 @@ func newPlayerManager(x int, y string, z *int) *PlayerManager {
 	}
 }
 
+func NewPeopleByName(name string) *People {
+	return &People{
+		name: name,
+	}
+}
+
+func NewPeopleByAge(age int) *People {
+	return &People{
+		age: uint8(age),
+	}
+}
+
 func StructTest() {
 	// 结构体实例化
 	// 基本实例化, 普通实例
 	var z int = 4
+	var q = z           // 在内存中进行了拷贝，q 指向新的地址
+	fmt.Println(&z, &q) // 地址不同
 	var p1 PlayerManager
 	p1.x = 1
 	p1.z = &z
 	fmt.Println(reflect.TypeOf(p1), p1.x)
 
-	// 指针实例化
+	// 指针实例化，new 的方式结果是指针
 	p2 := new(PlayerManager)
 	p2.x = 1
-	fmt.Println(reflect.TypeOf(p2), p2.x)
+	fmt.Println(reflect.TypeOf(p2), p2.x, (*p2).x)
 
-	// & 取地址操作也会当做一次new的操作，取结构体的地址实例化
+	// & 取地址操作也会当做一次new的操作，取结构体的地址实例化，p3是指针
 	p3 := &PlayerManager{}
 	p3.x = 1
 	fmt.Println(reflect.TypeOf(p3), (*p3).x) // p3.x 是语法糖，会被转化为 (*p3).x
 
-	p4 := &PlayerManager{1, "a", &z}
+	p4 := &PlayerManager{1, "a", &z} // 成员都在一行时需要全部初始化
 	fmt.Println(reflect.TypeOf(p4), p4.x)
+
+	p6 := &PlayerManager{ // 成员换行，可以选择初始化
+		x: 0,
+		y: "",
+	}
+	fmt.Println(reflect.TypeOf(p6), p4.x)
 
 	// 函数包装实例化
 	p5 := newPlayerManager(1, "a", &z)
@@ -642,7 +699,7 @@ func StructTest() {
 	// 使用闭包构造不同的结构体
 	pn := NewPeopleByName("s")
 	pa := NewPeopleByAge(18)
-	fmt.Printf("%T\n%T\n", pn, pa)
+	fmt.Printf("%T\n%T\n", pn, pa) // %T ：变量类型
 
 	// 定义和初始化匿名结构体
 	// 场景：https://blog.csdn.net/weixin_42117918/article/details/90448756
@@ -670,24 +727,13 @@ func StructTest() {
 	}}
 	fmt.Printf("%T\n", pps)
 	fmt.Println(pps.PlayerManager)
-	fmt.Println(pps.x, pps.PlayerManager.x)
+	fmt.Println(pps.x, pps.PlayerManager.x, pps.Engine.Power)
 	// 内嵌结构体的方法可以直接调用
 	pps.tttt()
+	pps.tttt2()
 
 	IoTest()
 
-}
-
-func NewPeopleByName(name string) *People {
-	return &People{
-		name: name,
-	}
-}
-
-func NewPeopleByAge(age int) *People {
-	return &People{
-		age: uint8(age),
-	}
 }
 
 type People struct {
